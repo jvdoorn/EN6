@@ -45,12 +45,16 @@ for i in range(len(entries)):
     axis[i, 1].set_title(f'{file_name} intensity')
 
     # Save the intensities to their array
-    intensities[i] = np.mean(intensity)
-    intensities_err[i] = np.std(intensity)
+    mean_intensity = np.mean(intensity)
+    intensities[i] = mean_intensity
+    mean_intensity_err = np.std(intensity)
+    intensities_err[i] = mean_intensity_err
 
     # Print additional information for the user
     print(
-        f'Average intensity: {np.mean(intensity):.1e}±{np.std(intensity):.0e} for rotation: {rotations[i]:.1e}±{rotations_err[i]:.0e}°')
+        f'Average intensity: {mean_intensity:.1e}±{mean_intensity_err:.0e} for rotation: {rotations[i]:.1e}±{rotations_err[i]:.0e}°')
+    print(
+        f'TeX friendly: {rotations[i]:.1e}±{rotations_err[i]:.0e}° & {mean_intensity:.1e}±{mean_intensity_err:.0e} \\\\')
 
 # Save the figure maps
 plt.savefig(f'figures/maps-{timestamp}.svg')
