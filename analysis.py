@@ -28,13 +28,13 @@ for i in range(len(entries)):
     # Get the image file name
     file_name = entries[i][0]
     # Load the image
-    image = Image.open(file_name)
+    image = np.array(Image.open(file_name))
 
     # Tell the user which file we are processing
     print(f'Processing image: {file_name}, has dimensions: {image.size}')
 
-    # Determine the intensity of each pixel
-    intensity = np.max(np.asarray(image), 2)
+    # Determine the intensity of each pixel (this excludes alpha values.
+    intensity = np.max(np.array(image)[:, :, :3], 2)
 
     # Plot the raw image
     axis[i, 0].imshow(image)
@@ -54,10 +54,10 @@ for i in range(len(entries)):
     print(
         f'Average intensity: {mean_intensity:.1e}±{mean_intensity_err:.0e} for rotation: {rotations[i]:.1e}±{rotations_err[i]:.0e}°')
     print(
-        f'TeX friendly: {rotations[i]:.1e}±{rotations_err[i]:.0e}° & {mean_intensity:.1e}±{mean_intensity_err:.0e} \\\\')
+        f'TeX friendly: ${rotations[i]:.1e}\pm{rotations_err[i]:.0e}\degrees$ & ${mean_intensity:.1e}\pm{mean_intensity_err:.0e}$ \\\\')
 
 # Save the figure maps
-plt.savefig(f'figures/maps-{timestamp}.svg')
+plt.savefig(f'figures/maps-{timestamp}.jpg')
 plt.show()
 
 # Determine the maximum intensity
