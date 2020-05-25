@@ -5,8 +5,7 @@ import numpy as np
 from PIL import Image
 from sklearn.metrics import mean_squared_error
 
-# Import entries, should be a list of tuples in the format (file name, rotation, error in rotation)
-# and various configurations.
+# Import entries and various configurations.
 from settings import compare, create_map, entries, map_values
 
 
@@ -14,10 +13,11 @@ def remap(values: np.ndarray, minimum: float, maximum: float) -> np.ndarray:
     return (values - minimum) / (maximum - minimum)
 
 
+# Generate the data array from the entries
 data = np.array(entries)
 
 if create_map:
-    # Create necessary Matplotlib objects
+    # Create necessary matplotlib objects
     figure, axis = plt.subplots(len(entries), 2, tight_layout=True)
 
 # Load data
@@ -25,8 +25,8 @@ rotations = data[:, 1].astype(np.float)
 rotations_err = data[:, 2].astype(np.float)
 
 # Prepare Numpy arrays we'll use later
-intensities = np.empty((len(entries), 1))
-intensities_err = np.empty((len(entries), 1))
+intensities = np.empty(len(entries))
+intensities_err = np.empty(len(entries))
 
 # Timestamp for files
 timestamp = datetime.now().strftime('%d-%m@%H-%M-%S')
@@ -39,7 +39,7 @@ for i in range(len(entries)):
     image = np.array(Image.open(file_name))
 
     # Tell the user which file we are processing
-    print(f'Processing image: {file_name}, has dimensions: {image.size}')
+    print(f'Processing image: {file_name}, has size: {image.size}')
 
     # Determine the intensity of each pixel (this excludes alpha values.
     intensity = np.max(np.array(image)[:, :, :3], 2)
@@ -61,7 +61,7 @@ for i in range(len(entries)):
 
     # Print additional information for the user
     print(
-        f'Average intensity: {mean_intensity:.1e}±{mean_intensity_err:.0e} for rotation: {rotations[i]:.1e}±{rotations_err[i]:.0e}°')
+        f'Average intensity: {mean_intensity:.1e}\u00B1{mean_intensity_err:.0e} for rotation: {rotations[i]:.1e}\u00B1{rotations_err[i]:.0e}\u00B0')
     print(
         f'TeX friendly: ${rotations[i]:.1e}\pm{rotations_err[i]:.0e}\degrees$ & ${mean_intensity:.1e}\pm{mean_intensity_err:.0e}$ \\\\')
 
@@ -78,29 +78,30 @@ if map_values:
     I_min = np.min(intensities)
     I_min_err = intensities_err[np.argmin(intensities)]
     # Calculate the relative intensities
-    relative_intensities = remap(intensities, I_min, I_max)[:, 0]
+    relative_intensities = remap(intensities, I_min, I_max)
     # Determine the error in the relative intensities
     relative_intensities_err = (np.sqrt((1 / (I_max - I_min) * intensities_err) ** 2 + (
             (intensities - I_max) / (I_max - I_min) ** 2 * I_min_err) ** 2 + (
-                                                (I_min - intensities) / (I_max - I_min) ** 2 * I_max_err) ** 2))[:, 0]
+                                                (I_min - intensities) / (I_max - I_min) ** 2 * I_max_err) ** 2))
 else:
     # Calculate the relative intensities
-    relative_intensities = (intensities / I_max)[:, 0]
+    relative_intensities = (intensities / I_max)
     # Determine the error in the relative intensities
     relative_intensities_err = ((1 / I_max) * np.sqrt(
-        np.square(intensities_err) + np.square(I_max_err) / np.square(I_max)))[:, 0]
+        np.square(intensities_err) + np.square(I_max_err) / np.square(I_max)))
 
 # Plot the intensity of rotation
 plt.title('Intensity vs. rotation')
 plt.grid()
 plt.errorbar(rotations, relative_intensities, relative_intensities_err, rotations_err, label='Measurement')
-plt.xlabel('Rotation [°]')
+plt.xlabel('Rotation [\u00B0]')
 if map_values:
     plt.ylabel(r'Relative intensity ($I$ mapped between $I_{max}$ and $I_{min}$) [unit less]')
 else:
     plt.ylabel(r'Intensity ($I/I_0$) [unit less]')
 
 if compare:
+    # Compare the measurements to the expected cosine squared pattern
     samples = np.linspace(np.min(rotations), np.max(rotations), 500)
     plt.plot(samples, np.cos(np.deg2rad(samples)) ** 2, label='Prediction')
     plt.legend()
@@ -115,7 +116,7 @@ plt.show()
 if compare:
     plt.title('Deviation from expected result')
     plt.errorbar(rotations, relative_intensities - np.cos(np.deg2rad(rotations)) ** 2, relative_intensities_err)
-    plt.xlabel('Rotation [°]')
+    plt.xlabel('Rotation [\u00B0]')
     plt.ylabel(r'Deviation of relative intensity from expected value [unit less]')
     plt.grid()
 
