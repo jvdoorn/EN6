@@ -4,12 +4,13 @@ This software has been written to analyse image data for my EN6 experiment
  `settings.py` should contain specifications as to what should be analysed. 
 
 ## Main functionality
-Given a series of images with their respective rotation the software will
+Basically it analyses the transmitted intensity of a polariser. Given a
+ series of images with their respective rotation the software will
 determine the average intensity of each image and map that value between 0
 and 1 where 1 is maximum brightness and 0 minimum brightness. It has the
 ability to create an intensity map and will generate a plot of intensity
-of angle. It is also able to compare it to the expected cosine squared
-pattern.
+over angle. It is also able to compare it to the expected cosine squared
+pattern derived from Malus's Law.
 
 ## Example `settings.py`
 ```python
